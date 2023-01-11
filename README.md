@@ -1,2 +1,25 @@
-# car_shooting
-itcen project with python
+# 🔅ITCEN pjt01
+
+> with PYTHON
+
+
+
+개요
+
+
+
+진행도
+
+
+
+담당업무
+
+팀장 : 윤지영
+
+김선림 김현희 오승우 최시열
+
+
+
+
+
+23.01.10 ~

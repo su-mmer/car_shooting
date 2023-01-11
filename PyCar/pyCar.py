@@ -11,8 +11,10 @@ GRAY = (150, 150, 150)
 background_tmp_1 = (0, 150, 0)
 background_tmp_2 = (0, 0, 150)
 RED = (255, 0, 0)
+check_crash_num = [0]
 
 class Car:
+    global check_crash_num
     image_obstacles = ['stop.png', 'police.png', 'conical.png', 'barricade.png']
     
     def __init__(self, x=0, y=0, dx=0, dy=0):
@@ -49,11 +51,13 @@ class Car:
         if self.x + self.width > WINDOW_WIDTH or self.x < 0:
             self.x -= self.dx
     
-    def check_crash(self, car):
-        if (self.x + self.width > car.x) and (self.x < car.x + car.width) and (self.y < car.y + car.height) and (self.y + self.height > car.y):
-            return True
+    def check_crash(self, car, last_x):
+        if (last_x != car.x) and (self.x + self.width > car.x) and (self.x < car.x + car.width) and (self.y < car.y + car.height) and (self.y + self.height > car.y):
+            last_x = car.x
+            return [last_x, True]
         else:
-            return False
+            last_x = 9999
+            return [last_x, False]
 
 start_time = int(time()) + 5
 
@@ -83,6 +87,13 @@ def draw_time():
     text_score = font_40.render(f'time: {now_time}', True, BLACK)
     screen.blit(text_score, [370, 15])
     return now_time
+
+def draw_life(life):
+    image_life = pygame.image.load('wheel.png')
+    ddx = 30
+    for _ in range(life):
+        screen.blit(image_life, [120+ddx, 15])
+        ddx += 30
 
 if __name__ == '__main__':
 
@@ -118,11 +129,14 @@ if __name__ == '__main__':
     for i in range(lane_count):
         lanes.append([lane_x, lane_y])
         lane_y += lane_height + lane_margin
-    
+
+    life = 3
     boundary = 0
     score = 0
+    last_x = 9999
     crash = True
     game_on = True
+    k = 1
     while game_on:
         if boundary == 0:
             for event in pygame.event.get():
@@ -142,6 +156,7 @@ if __name__ == '__main__':
                         player.dx = 0
                         score = 0
                         boundary = 0
+                        life = 3
                         pygame.mouse.set_visible(False)
                         # sound_engine.play()
                         # sleep(5)
@@ -178,6 +193,7 @@ if __name__ == '__main__':
                         player.dx = 0
                         score = 0
                         boundary = 0
+                        life = 3
                         pygame.mouse.set_visible(False)
                         # sound_engine.play()
                         # sleep(5)
@@ -214,6 +230,7 @@ if __name__ == '__main__':
                         player.dx = 0
                         score = 0
                         boundary = 0
+                        life = 3
                         pygame.mouse.set_visible(False)
                         # sound_engine.play()
                         # sleep(5)
@@ -259,17 +276,22 @@ if __name__ == '__main__':
                     obstacles[i].y = random.randrange(-150, -50)
                     obstacles[i].dy = random.randint(5, 10) # 장애물 속도
                     obstacles[i].load_image_obstacle()
-            
+
             for i in range(obstacle_count):
-                if player.check_crash(obstacles[i]):
-                    crash = True
+                cc = player.check_crash(obstacles[i], last_x)
+                if cc[1]:
                     # pygame.mixer.music.stop()
                     # sound_crash.play()
-                    sleep(2)
-                    pygame.mouse.set_visible(True)
-                    break
+                    last_x = cc[0]
+                    life -= 1
+                    if life == 0:
+                        crash = True
+                        pygame.mouse.set_visible(True)
+                        # sleep(2)
+                        break
             
             draw_score()
+            draw_life(life)
             now = draw_time()
             if now > 5:
                 boundary = 2

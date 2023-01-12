@@ -1,6 +1,7 @@
 import pygame
 import random
 from time import sleep, time
+import sys
 
 WINDOW_WIDTH = 480
 WINDOW_HEIGHT = 800
@@ -80,8 +81,15 @@ def draw_main_menu():
     screen.blit(image_intro, [0, 0])
     font_25 = pygame.font.SysFont('malgungothic', 25, True, False)
     font_15 = pygame.font.SysFont('malgungothic', 15, True, False)
-    text_score = font_25.render('Score: ' + str(score), True, WHITE)
-    screen.blit(text_score, [draw_x - text_score.get_rect().size[0] / 2, draw_y + 100])
+    text_score_1 = font_25.render('1st: ' + str(score_data[0]), True, WHITE)
+    screen.blit(text_score_1, [draw_x - text_score_1.get_rect().size[0] / 2, draw_y + 100])
+    
+    text_score_2 = font_25.render('2st: ' + str(score_data[1]), True, WHITE)
+    screen.blit(text_score_2, [draw_x - text_score_2.get_rect().size[0] / 2, draw_y + 150])
+    
+    text_score_3 = font_25.render('3st: ' + str(score_data[2]), True, WHITE)
+    screen.blit(text_score_3, [draw_x - text_score_3.get_rect().size[0] / 2, draw_y + 200])
+    
     text_start = font_15.render('SPACE를 눌러 게임을 시작하세요', True, RED)
     screen.blit(text_start, [draw_x - text_start.get_rect().size[0] / 2, draw_y + 350])
     pygame.display.flip()
@@ -93,10 +101,20 @@ def draw_ending():
     screen.blit(image_ending, [0, 0])
     font_25 = pygame.font.SysFont('malgungothic', 25, True, False)
     font_15 = pygame.font.SysFont('malgungothic', 15, True, False)
-    text_score = font_25.render('Score: ' + str(score), True, WHITE)
-    screen.blit(text_score, [draw_x - text_score.get_rect().size[0] / 2, draw_y - 350])
+    text_score_1 = font_25.render('1st: ' + str(score_data[0]), True, WHITE)
+    screen.blit(text_score_1, [draw_x - text_score_1.get_rect().size[0] / 2, draw_y - 350])
+    
+    text_score_2 = font_25.render('2st: ' + str(score_data[1]), True, WHITE)
+    screen.blit(text_score_2, [draw_x - text_score_2.get_rect().size[0] / 2, draw_y - 300])
+    
+    text_score_3 = font_25.render('3st: ' + str(score_data[2]), True, WHITE)
+    screen.blit(text_score_3, [draw_x - text_score_3.get_rect().size[0] / 2, draw_y - 250])
+    
+    text_score = font_25.render('내 점수: ' + str(score), True, WHITE)
+    screen.blit(text_score, [draw_x - text_score.get_rect().size[0] / 2, draw_y - 200])
+    
     text_start = font_15.render('SPACE를 눌러 게임을 시작하세요', True, WHITE)
-    screen.blit(text_start, [draw_x - text_start.get_rect().size[0] / 2, draw_y - 300])
+    screen.blit(text_start, [draw_x - text_start.get_rect().size[0] / 2, draw_y - 380])
     pygame.display.flip()
 
 def draw_score():
@@ -136,11 +154,14 @@ if __name__ == '__main__':
     sound_crash = pygame.mixer.Sound('crash.wav')
     sound_engine = pygame.mixer.Sound('engine.wav')
 
+    sys.stdin = open('data.txt')
+    score_data = list(map(int, input().split()))
+    
     player = Car(WINDOW_WIDTH/2, (WINDOW_HEIGHT - 150), 0, 0)
     player.load_image_mycar()
 
     obstacles = []
-    obstacle_count = 3
+    obstacle_count = 5
     for i in range(obstacle_count):
         x = random.randrange(0, WINDOW_WIDTH - 55)
         y = 0
@@ -153,21 +174,23 @@ if __name__ == '__main__':
     police = Car(x, y, 0, random.randint(5, 10))
     police.load_image_police()
     
-    # lanes = []
-    # lane_width = 10
-    # lane_height = 80
-    # lane_margin = 20
-    # lane_count = 20
-    # lane_x = (WINDOW_WIDTH - lane_width) / 2
-    # lane_y = -10
-    # for i in range(lane_count):
-    #     lanes.append([lane_x, lane_y])
-    #     lane_y += lane_height + lane_margin
+    lanes = []
+    lane_width = 10
+    lane_height = 80
+    lane_margin = 20
+    lane_count = 20
+    lane_x = (WINDOW_WIDTH - lane_width) / 2
+    lane_y = -10
+    for i in range(lane_count):
+        lanes.append([lane_x, lane_y])
+        lane_y += lane_height + lane_margin
 
     background_1 = pygame.image.load('background1.png')
     background_2 = pygame.image.load('background2.png')
     background_3 = pygame.image.load('background3.png')
     background_rect = background_1.get_rect()
+    
+    bg = pygame.image.load('bg.png')
 
     bulletXY = []
     isShot = False
@@ -189,8 +212,6 @@ if __name__ == '__main__':
                 game_on = False
         
             if crash:
-                # cur.executemany(f'INSERT INTO score VALUES (null, ?)', [score])
-                # conn.commit()
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                     crash = False
                     start_time = int(time()) + 5
@@ -202,6 +223,12 @@ if __name__ == '__main__':
                     police.x = random.randrange(0, WINDOW_WIDTH-police.width)
                     police.y = random.randrange(-150, -50)
                     police.load_image_police()
+                    
+                    score_data.append(score)
+                    score_data.sort(reverse=True)
+                    score_data = score_data[:3]
+                    f = open('data.txt', 'w')
+                    f.write(f'{score_data[0]} {score_data[1]} {score_data[2]}')
                     
                     player.x = WINDOW_WIDTH/2
                     player.dx = 0
@@ -236,27 +263,18 @@ if __name__ == '__main__':
                         bulletXY.append([bulletX, bulletY])
 
         if boundary == 2:
-            screen.blit(background_3, background_rect)
-            # background_rect.y += 5
-            # if background_rect.y > WINDOW_HEIGHT:
-            #     background_rect.y = 0 - background_rect.height
+            screen.blit(bg, background_rect)
         elif boundary == 1:
-            screen.blit(background_2, background_rect)
-            # background_rect.y += 5
-            # if background_rect.y > WINDOW_HEIGHT:
-            #     background_rect.y = 0 - background_rect.height
+            screen.blit(bg, background_rect)
         else:
-            screen.blit(background_1, background_rect)
-            # background_rect.y += 5
-            # if background_rect.y > WINDOW_HEIGHT:
-            #     background_rect.y = 0 - background_rect.height
+            screen.blit(bg, background_rect)
         
         if not crash:
-            # for i in range(lane_count):
-            #     pygame.draw.rect(screen, WHITE, [lanes[i][0], lanes[i][1], lane_width, lane_height])
-            #     lanes[i][1] += 10
-            #     if lanes[i][1] > WINDOW_HEIGHT:
-            #         lanes[i][1] = -40 - lane_height
+            for i in range(lane_count):
+                pygame.draw.rect(screen, WHITE, [lanes[i][0], lanes[i][1], lane_width, lane_height])
+                lanes[i][1] += 10
+                if lanes[i][1] > WINDOW_HEIGHT:
+                    lanes[i][1] = -40 - lane_height
             
             player.draw_image_mycar()
             player.move_x()
@@ -290,7 +308,7 @@ if __name__ == '__main__':
                         score += 10
                         obstacles[i].x = random.randrange(0, WINDOW_WIDTH-obstacles[i].width)
                         obstacles[i].y = 0
-                        obstacles[i].dy = random.randint(5, 9) # 장애물 속도
+                        obstacles[i].dy = random.randint(5, 11) # 장애물 속도
                         obstacles[i].load_image_obstacle()
                 
                 police.draw_image_police()
@@ -299,8 +317,9 @@ if __name__ == '__main__':
                     score += 10
                     police.x = random.randrange(0, WINDOW_WIDTH-police.width)
                     police.y = random.randrange(-150, -50)
-                    police.dy = random.randint(5, 9) # 장애물 속도
+                    police.dy = random.randint(5, 11) # 장애물 속도
                 police.load_image_police()
+            
             else:
                 for i in range(obstacle_count):
                     obstacles[i].draw_image_obstacle()
@@ -309,7 +328,7 @@ if __name__ == '__main__':
                         score += 10
                         obstacles[i].x = random.randrange(0, WINDOW_WIDTH-obstacles[i].width)
                         obstacles[i].y = random.randrange(-150, -50)
-                        obstacles[i].dy = random.randint(7, 12) # 장애물 속도
+                        obstacles[i].dy = random.randint(10, 15) # 장애물 속도
                         obstacles[i].load_image_obstacle()
                 
                 police.draw_image_police()
@@ -318,7 +337,7 @@ if __name__ == '__main__':
                     score += 10
                     police.x = random.randrange(0, WINDOW_WIDTH-police.width)
                     police.y = random.randrange(-150, -50)
-                    police.dy = random.randint(7, 12) # 장애물 속도
+                    police.dy = random.randint(10, 15) # 장애물 속도
                 police.load_image_police()
 
             if len(bulletXY) != 0:
@@ -327,7 +346,7 @@ if __name__ == '__main__':
                     bulletXY[j][1] = bxy[1]
 
                     if bxy[1] < police.y:
-                        if bxy[0] > police.x + 10 and bxy[0] + 10 < police.x + police.width:
+                        if bxy[0] + 20 > police.x and bxy[0] - 20 < police.x + police.width:
                             bulletXY.remove(bxy)
                             isShot = True
                             shotCount += 1
@@ -357,7 +376,7 @@ if __name__ == '__main__':
             
             ccp = player.check_crash_police(police, last_px)
             if ccp[1]:
-                sound_crash.play()
+                # sound_crash.play()
                 last_px = ccp[0]
                 life -= 1
                 if life == 0:
@@ -366,6 +385,7 @@ if __name__ == '__main__':
                     pygame.mouse.set_visible(True)
 
             if isShot:
+                score += 20
                 x = random.randrange(0, WINDOW_WIDTH - 55)
                 y = random.randrange(-150, -50)
                 police = Car(x, y, 0, random.randint(5, 10))
@@ -375,7 +395,7 @@ if __name__ == '__main__':
             draw_score()
             draw_life(life)
             now = draw_time()
-            if now > 20:
+            if now > 15:
                 boundary = 2
                 if music_var_3 == 0:
                     music_var_3 += 1
@@ -396,5 +416,9 @@ if __name__ == '__main__':
             
         clock.tick(60)
 
-    # conn.close()
+    score_data.append(score)
+    score_data.sort(reverse=True)
+    score_data = score_data[:3]
+    f = open('data.txt', 'w')
+    f.write(f'{score_data[0]} {score_data[1]} {score_data[2]}')
     pygame.quit()

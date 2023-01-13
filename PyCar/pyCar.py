@@ -10,6 +10,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (150, 150, 150)
 RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
 
 class Car:
     image_obstacles = ['stop.png', 'conical.png', 'barricade.png']
@@ -58,7 +59,7 @@ class Car:
             self.x -= self.dx
     
     def check_crash(self, car, last_x):
-        if (last_x != car.x) and (self.x + self.width - 10 > car.x) and (self.x < car.x + car.width - 10) and (self.y < car.y + car.height - 30) and (self.y + self.height - 30 > car.y):
+        if (last_x != car.x) and (self.x + self.width - 20 > car.x) and (self.x < car.x + car.width - 20) and (self.y < car.y + car.height - 30) and (self.y + self.height - 30 > car.y):
             last_x = car.x
             return [last_x, True]
         else:
@@ -66,7 +67,7 @@ class Car:
             return [last_x, False]
     
     def check_crash_police(self, car, last_px):
-        if (last_px != car.x) and (self.x + self.width - 10 > car.x) and (self.x < car.x + car.width - 10) and (self.y < car.y + car.height - 30) and (self.y + self.height - 30 > car.y):
+        if (last_px != car.x) and (self.x + self.width - 20 > car.x) and (self.x < car.x + car.width - 20) and (self.y < car.y + car.height - 30) and (self.y + self.height - 30 > car.y):
             last_px = car.x
             return [last_px, True]
         else:
@@ -90,7 +91,7 @@ def draw_main_menu():
     text_score_3 = font_25.render('3st: ' + str(score_data[2]), True, WHITE)
     screen.blit(text_score_3, [draw_x - text_score_3.get_rect().size[0] / 2, draw_y + 200])
     
-    text_start = font_15.render('SPACE를 눌러 게임을 시작하세요', True, RED)
+    text_start = font_15.render('Press SPACE', True, RED)
     screen.blit(text_start, [draw_x - text_start.get_rect().size[0] / 2, draw_y + 350])
     pygame.display.flip()
     
@@ -113,40 +114,50 @@ def draw_ending():
     text_score = font_25.render('내 점수: ' + str(score), True, WHITE)
     screen.blit(text_score, [draw_x - text_score.get_rect().size[0] / 2, draw_y - 200])
     
-    text_start = font_15.render('SPACE를 눌러 게임을 시작하세요', True, WHITE)
+    text_start = font_15.render('Press SPACE for Restart', True, YELLOW)
     screen.blit(text_start, [draw_x - text_start.get_rect().size[0] / 2, draw_y - 380])
     pygame.display.flip()
 
 def draw_score():
-    font_25 = pygame.font.SysFont('FixedSys', 30, True, False)
-    text_score = font_25.render('Score: ' + str(score), True, BLACK)
-    screen.blit(text_score, [15, 15])
+    font_25 = pygame.font.SysFont('FixedSys', 25, True, False)
+    text_score = font_25.render('Score  ' + str(score), True, BLACK)
+    screen.blit(text_score, [380, 30])
+
 
 def draw_time():
     now_time = int(time()) - start_time
-    font_25 = pygame.font.SysFont('FixedSys', 30, True, False)
-    text_score = font_25.render(f'time: {now_time}', True, BLACK)
-    screen.blit(text_score, [370, 15])
+    font_25 = pygame.font.SysFont('FixedSys', 25, True, False)
+    if now_time < 60:
+        text_score = font_25.render(f'00:{now_time}', True, BLACK)
+    else:
+        text_score = font_25.render(f'0{now_time//60}:{now_time - 60*(now_time//60)}', True, BLACK)
+    screen.blit(text_score, [420, 15])
     return now_time
 
 def draw_life(life):
     image_life = pygame.image.load('wheel.png')
-    ddx = 45
+    ddx = 0
     for _ in range(life):
-        screen.blit(image_life, [120+ddx, 15])
+        screen.blit(image_life, [15+ddx, 15])
         ddx += 45
+
+def draw_fire(shot_count):
+    image_fire = pygame.image.load('fire.png')
+    fdx = 0
+    for _ in range(shot_count):
+        screen.blit(image_fire, [15+fdx, 65])
+        fdx += 30
 
 def load_image_bullet(bx, by):
     image_bullet = pygame.image.load('bullet.png')
     screen.blit(image_bullet, [bx, by])
-
 
 if __name__ == '__main__':
 
     pygame.init()
 
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-    pygame.display.set_caption('PyCar')
+    pygame.display.set_caption('탈옥수, 국경을 넘어라!')
     clock = pygame.time.Clock()
 
     pygame.mixer.music.load('1round.mp3')
@@ -174,23 +185,23 @@ if __name__ == '__main__':
     police = Car(x, y, 0, random.randint(5, 10))
     police.load_image_police()
     
-    lanes = []
-    lane_width = 10
-    lane_height = 80
-    lane_margin = 20
-    lane_count = 20
-    lane_x = (WINDOW_WIDTH - lane_width) / 2
-    lane_y = -10
-    for i in range(lane_count):
-        lanes.append([lane_x, lane_y])
-        lane_y += lane_height + lane_margin
+    # lanes = []
+    # lane_width = 10
+    # lane_height = 80
+    # lane_margin = 20
+    # lane_count = 20
+    # lane_x = (WINDOW_WIDTH - lane_width) / 2
+    # lane_y = -10
+    # for i in range(lane_count):
+    #     lanes.append([lane_x, lane_y])
+    #     lane_y += lane_height + lane_margin
 
     background_1 = pygame.image.load('background1.png')
     background_2 = pygame.image.load('background2.png')
     background_3 = pygame.image.load('background3.png')
     background_rect = background_1.get_rect()
-    
-    bg = pygame.image.load('bg.png')
+
+    power_car = pygame.image.load('powercar.png')
 
     bulletXY = []
     isShot = False
@@ -205,6 +216,8 @@ if __name__ == '__main__':
     music_var_3 = 0
     ismain = True
     crash = True
+    isPower = False
+    s_time = 0
     game_on = True
     while game_on:
         for event in pygame.event.get():
@@ -238,6 +251,8 @@ if __name__ == '__main__':
                     music_var_2 = 0
                     music_var_3 = 0
                     ismain = False
+                    isPower = False
+                    shotCount = 0
                     pygame.mouse.set_visible(False)
                     sound_engine.play()
                     sleep(5)
@@ -262,25 +277,133 @@ if __name__ == '__main__':
                         bulletY = player.y
                         bulletXY.append([bulletX, bulletY])
 
+            if shotCount == 5:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_x:
+                        s_time = int(time())
+                        isPower = True
+
         if boundary == 2:
-            screen.blit(bg, background_rect)
+            screen.blit(background_3, background_rect)
         elif boundary == 1:
-            screen.blit(bg, background_rect)
+            screen.blit(background_2, background_rect)
         else:
-            screen.blit(bg, background_rect)
+            screen.blit(background_1, background_rect)
         
         if not crash:
-            for i in range(lane_count):
-                pygame.draw.rect(screen, WHITE, [lanes[i][0], lanes[i][1], lane_width, lane_height])
-                lanes[i][1] += 10
-                if lanes[i][1] > WINDOW_HEIGHT:
-                    lanes[i][1] = -40 - lane_height
-            
-            player.draw_image_mycar()
+            if isPower:
+                screen.blit(power_car, [player.x, player.y])
+            else:
+                player.draw_image_mycar()
             player.move_x()
             player.check_out_of_screen()
             
-            if boundary == 0:
+            if isPower:
+                for i in range(obstacle_count):
+                    obstacles[i].draw_image_obstacle()
+                    obstacles[i].y += obstacles[i].dy
+                    if obstacles[i].y > WINDOW_HEIGHT:
+                        score += 10
+                        obstacles[i].x = random.randrange(0, WINDOW_WIDTH-obstacles[i].width)
+                        obstacles[i].y = 0
+                        obstacles[i].dy = 40 # 장애물 속도
+                        obstacles[i].load_image_obstacle()
+                
+                police.draw_image_police()
+                police.y += police.dy
+                if police.y > WINDOW_HEIGHT:
+                    score += 10
+                    police.x = random.randrange(0, WINDOW_WIDTH-police.width)
+                    police.y = 0
+                    police.dy = 40 # 장애물 속도
+                police.load_image_police()
+            else:
+                if boundary == 0:
+                    for i in range(obstacle_count):
+                        obstacles[i].draw_image_obstacle()
+                        obstacles[i].y += obstacles[i].dy
+                        if obstacles[i].y > WINDOW_HEIGHT:
+                            score += 10
+                            obstacles[i].x = random.randrange(0, WINDOW_WIDTH-obstacles[i].width)
+                            obstacles[i].y = 0
+                            obstacles[i].dy = random.randint(3, 7) # 장애물 속도
+                            obstacles[i].load_image_obstacle()
+                    
+                    police.draw_image_police()
+                    police.y += police.dy
+                    if police.y > WINDOW_HEIGHT:
+                        score += 10
+                        police.x = random.randrange(0, WINDOW_WIDTH-police.width)
+                        police.y = 0
+                        police.dy = random.randint(3, 7) # 장애물 속도
+                    police.load_image_police()
+                    
+                elif boundary == 1:
+                    for i in range(obstacle_count):
+                        obstacles[i].draw_image_obstacle()
+                        obstacles[i].y += obstacles[i].dy
+                        if obstacles[i].y > WINDOW_HEIGHT:
+                            score += 10
+                            obstacles[i].x = random.randrange(0, WINDOW_WIDTH-obstacles[i].width)
+                            obstacles[i].y = 0
+                            obstacles[i].dy = random.randint(5, 11) # 장애물 속도
+                            obstacles[i].load_image_obstacle()
+                    
+                    police.draw_image_police()
+                    police.y += police.dy
+                    if police.y > WINDOW_HEIGHT:
+                        score += 10
+                        police.x = random.randrange(0, WINDOW_WIDTH-police.width)
+                        police.y = random.randrange(-150, -50)
+                        police.dy = random.randint(5, 11) # 장애물 속도
+                    police.load_image_police()
+                
+                else:
+                    for i in range(obstacle_count):
+                        obstacles[i].draw_image_obstacle()
+                        obstacles[i].y += obstacles[i].dy
+                        if obstacles[i].y > WINDOW_HEIGHT:
+                            score += 10
+                            obstacles[i].x = random.randrange(0, WINDOW_WIDTH-obstacles[i].width)
+                            obstacles[i].y = random.randrange(-150, -50)
+                            obstacles[i].dy = random.randint(10, 15) # 장애물 속도
+                            obstacles[i].load_image_obstacle()
+                    
+                    police.draw_image_police()
+                    police.y += police.dy
+                    if police.y > WINDOW_HEIGHT:
+                        score += 10
+                        police.x = random.randrange(0, WINDOW_WIDTH-police.width)
+                        police.y = random.randrange(-150, -50)
+                        police.dy = random.randint(10, 15) # 장애물 속도
+                    police.load_image_police()
+
+            if len(bulletXY) != 0:
+                for j, bxy in enumerate(bulletXY):
+                    bxy[1] -= 10
+                    bulletXY[j][1] = bxy[1]
+
+                    if bxy[1] < police.y:
+                        if bxy[0] + 20 > police.x and bxy[0] - 20 < police.x + police.width:
+                            bulletXY.remove(bxy)
+                            isShot = True
+                            if shotCount < 5:
+                                shotCount += 1
+
+                if bxy[1] <= 0:
+                    try:
+                        bulletXY.remove(bxy)
+                    except:
+                        pass
+                        
+            if len(bulletXY) != 0:
+                for bx, by in bulletXY:
+                    load_image_bullet(bx, by)
+            print(int(time())-s_time)
+            if isPower:
+                if int(time())-s_time == 5:
+                    isPower = False
+            elif not isPower and int(time())-s_time <= 6:
                 for i in range(obstacle_count):
                     obstacles[i].draw_image_obstacle()
                     obstacles[i].y += obstacles[i].dy
@@ -299,108 +422,48 @@ if __name__ == '__main__':
                     police.y = 0
                     police.dy = random.randint(3, 7) # 장애물 속도
                 police.load_image_police()
-                
-            elif boundary == 1:
-                for i in range(obstacle_count):
-                    obstacles[i].draw_image_obstacle()
-                    obstacles[i].y += obstacles[i].dy
-                    if obstacles[i].y > WINDOW_HEIGHT:
-                        score += 10
-                        obstacles[i].x = random.randrange(0, WINDOW_WIDTH-obstacles[i].width)
-                        obstacles[i].y = 0
-                        obstacles[i].dy = random.randint(5, 11) # 장애물 속도
-                        obstacles[i].load_image_obstacle()
-                
-                police.draw_image_police()
-                police.y += police.dy
-                if police.y > WINDOW_HEIGHT:
-                    score += 10
-                    police.x = random.randrange(0, WINDOW_WIDTH-police.width)
-                    police.y = random.randrange(-150, -50)
-                    police.dy = random.randint(5, 11) # 장애물 속도
-                police.load_image_police()
-            
+                shotCount = 0
             else:
                 for i in range(obstacle_count):
-                    obstacles[i].draw_image_obstacle()
-                    obstacles[i].y += obstacles[i].dy
-                    if obstacles[i].y > WINDOW_HEIGHT:
-                        score += 10
-                        obstacles[i].x = random.randrange(0, WINDOW_WIDTH-obstacles[i].width)
-                        obstacles[i].y = random.randrange(-150, -50)
-                        obstacles[i].dy = random.randint(10, 15) # 장애물 속도
-                        obstacles[i].load_image_obstacle()
+                    cc = player.check_crash(obstacles[i], last_x)
+                    if cc[1]:
+                        sound_crash.play()
+                        last_x = cc[0]
+                        life -= 1
+                        if life == 0:
+                            pygame.mixer.music.stop()
+                            crash = True
+                            pygame.mouse.set_visible(True)
+                            break
                 
-                police.draw_image_police()
-                police.y += police.dy
-                if police.y > WINDOW_HEIGHT:
-                    score += 10
-                    police.x = random.randrange(0, WINDOW_WIDTH-police.width)
-                    police.y = random.randrange(-150, -50)
-                    police.dy = random.randint(10, 15) # 장애물 속도
-                police.load_image_police()
-
-            if len(bulletXY) != 0:
-                for j, bxy in enumerate(bulletXY):
-                    bxy[1] -= 10
-                    bulletXY[j][1] = bxy[1]
-
-                    if bxy[1] < police.y:
-                        if bxy[0] + 20 > police.x and bxy[0] - 20 < police.x + police.width:
-                            bulletXY.remove(bxy)
-                            isShot = True
-                            shotCount += 1
-
-                if bxy[1] <= 0:
-                    try:
-                        bulletXY.remove(bxy)
-                    except:
-                        pass
-                        
-            # print(shotCount)
-            if len(bulletXY) != 0:
-                for bx, by in bulletXY:
-                    load_image_bullet(bx, by)
-
-            for i in range(obstacle_count):
-                cc = player.check_crash(obstacles[i], last_x)
-                if cc[1]:
+                ccp = player.check_crash_police(police, last_px)
+                if ccp[1]:
                     sound_crash.play()
-                    last_x = cc[0]
+                    last_px = ccp[0]
                     life -= 1
                     if life == 0:
                         pygame.mixer.music.stop()
                         crash = True
                         pygame.mouse.set_visible(True)
-                        break
-            
-            ccp = player.check_crash_police(police, last_px)
-            if ccp[1]:
-                # sound_crash.play()
-                last_px = ccp[0]
-                life -= 1
-                if life == 0:
-                    pygame.mixer.music.stop()
-                    crash = True
-                    pygame.mouse.set_visible(True)
 
-            if isShot:
-                score += 20
-                x = random.randrange(0, WINDOW_WIDTH - 55)
-                y = random.randrange(-150, -50)
-                police = Car(x, y, 0, random.randint(5, 10))
-                police.load_image_police()
-                isShot = False
+                if isShot:
+                    score += 20
+                    x = random.randrange(0, WINDOW_WIDTH - 55)
+                    y = random.randrange(-150, -50)
+                    police = Car(x, y, 0, random.randint(5, 10))
+                    police.load_image_police()
+                    isShot = False
 
             draw_score()
             draw_life(life)
+            draw_fire(shotCount)
             now = draw_time()
-            if now > 15:
+            if now > 60:
                 boundary = 2
                 if music_var_3 == 0:
                     music_var_3 += 1
                     sound_roundchange.play()
-            elif now > 5:
+            elif now > 30:
                 boundary = 1
                 if music_var_2 == 0:
                     music_var_2 += 1

@@ -184,17 +184,6 @@ if __name__ == '__main__':
     y = random.randrange(-150, -50)
     police = Car(x, y, 0, random.randint(5, 10))
     police.load_image_police()
-    
-    # lanes = []
-    # lane_width = 10
-    # lane_height = 80
-    # lane_margin = 20
-    # lane_count = 20
-    # lane_x = (WINDOW_WIDTH - lane_width) / 2
-    # lane_y = -10
-    # for i in range(lane_count):
-    #     lanes.append([lane_x, lane_y])
-    #     lane_y += lane_height + lane_margin
 
     background_1 = pygame.image.load('background1.png')
     background_2 = pygame.image.load('background2.png')
@@ -259,17 +248,42 @@ if __name__ == '__main__':
                     pygame.mixer.music.play(-1) # 음악 반복
                 
             if not crash:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RIGHT:
-                        player.dx = 4
-                    elif event.key == pygame.K_LEFT:
-                        player.dx = -4
-                
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_RIGHT:
-                        player.dx = 0
-                    elif event.key == pygame.K_LEFT:
-                        player.dx = 0
+                if boundary == 0:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RIGHT:
+                            player.dx = 6
+                        elif event.key == pygame.K_LEFT:
+                            player.dx = -6
+                    
+                    if event.type == pygame.KEYUP:
+                        if event.key == pygame.K_RIGHT:
+                            player.dx = 0
+                        elif event.key == pygame.K_LEFT:
+                            player.dx = 0
+                elif boundary == 1:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RIGHT:
+                            player.dx = 4
+                        elif event.key == pygame.K_LEFT:
+                            player.dx = -4
+                    
+                    if event.type == pygame.KEYUP:
+                        if event.key == pygame.K_RIGHT:
+                            player.dx = 0
+                        elif event.key == pygame.K_LEFT:
+                            player.dx = 0
+                else:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RIGHT:
+                            player.dx = 3
+                        elif event.key == pygame.K_LEFT:
+                            player.dx = -3
+                    
+                    if event.type == pygame.KEYUP:
+                        if event.key == pygame.K_RIGHT:
+                            player.dx = 0
+                        elif event.key == pygame.K_LEFT:
+                            player.dx = 0
                 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_z:
@@ -366,7 +380,7 @@ if __name__ == '__main__':
                             score += 10
                             obstacles[i].x = random.randrange(0, WINDOW_WIDTH-obstacles[i].width)
                             obstacles[i].y = random.randrange(-150, -50)
-                            obstacles[i].dy = random.randint(10, 15) # 장애물 속도
+                            obstacles[i].dy = random.randint(8, 13) # 장애물 속도
                             obstacles[i].load_image_obstacle()
                     
                     police.draw_image_police()
@@ -375,7 +389,7 @@ if __name__ == '__main__':
                         score += 10
                         police.x = random.randrange(0, WINDOW_WIDTH-police.width)
                         police.y = random.randrange(-150, -50)
-                        police.dy = random.randint(10, 15) # 장애물 속도
+                        police.dy = random.randint(8, 13) # 장애물 속도
                     police.load_image_police()
 
             if len(bulletXY) != 0:
@@ -399,7 +413,6 @@ if __name__ == '__main__':
             if len(bulletXY) != 0:
                 for bx, by in bulletXY:
                     load_image_bullet(bx, by)
-            print(int(time())-s_time)
             if isPower:
                 if int(time())-s_time == 5:
                     isPower = False
